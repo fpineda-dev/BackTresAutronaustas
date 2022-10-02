@@ -12,10 +12,10 @@ require('dotenv').config();
 const createUser = async (req, res) => {
   try {
     const {
-      name, email, password,
+      name, email, password, token,
     } = req.body;
     // validate user input
-    if (!(name && email && password)) {
+    if (!(name && email && password && token)) {
       res.status(400).send('All input is required');
     }
 
@@ -34,10 +34,11 @@ const createUser = async (req, res) => {
       name,
       email: email.toLowerCase(),
       password: encryptedPassword,
+      token,
     });
-    res.send({ algo: data });
+    res.send(data);
   } catch (error) {
-    console.log(error);
+    return res.status(500).send(error);
   }
 };
 
@@ -66,13 +67,19 @@ const loginUser = async (req, res) => {
         { user_id: user._id, email },
         process.env.TOKEN_KEY,
         {
-          expiresIn: '2h', // 5s
+          expiresIn: '2h', // 5s  1m
         },
       );
       // save user token
       user.token = token;
 
-      console.log(`Data in param.. ${email}, ${password} ${token}`);
+      console.log(`Data in param.. ${email}, ${password} ${user.token}`);
+
+      const data = await userModel.updateOne(
+        { email },
+        { token },
+      );
+      console.log(`Token updated... ${data}`);
 
       // user
       res.status(200).json(user);

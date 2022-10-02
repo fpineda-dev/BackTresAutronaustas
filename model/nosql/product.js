@@ -8,9 +8,12 @@ const ProductSchema = new mongoose.Schema(
     price: {
       type: Number,
     },
-    owner: {
+    productManage: {
       type: String,
-      unique: true,
+      require: true,
+      // index: true,
+      // unique: true,
+      sparse: true,
     },
   },
   {
@@ -18,5 +21,7 @@ const ProductSchema = new mongoose.Schema(
     versionKey: false,
   },
 );
+
+ProductSchema.plugin(require('mongoose-beautiful-unique-validation'));
 
 module.exports = mongoose.model('product', ProductSchema);
